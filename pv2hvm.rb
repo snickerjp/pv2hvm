@@ -79,13 +79,18 @@ EOS
     if @src_ami.root_device_name.match(/1$/)
       commands=[
         "parted /dev/xvdo --script 'mklabel msdos mkpart primary 1M -1s print quit'",
+        "ls -l /dev/ | grep xvd",
         "partprobe /dev/xvdo",
         "udevadm settle",
-        "dd if=/dev/xvdm of=/dev/xvdo1 bs=256M",
+        "e2fsck -y -f /dev/xvdm ; resize2fs -M /dev/xvdm",
+        "dd if=/dev/xvdm of=/dev/xvdo1 bs=$(blockdev --getbsz /dev/xvdm) conv=sparse count=$(dumpe2fs /dev/xvdm | grep \"Block count:\" | cut -d : -f2 | tr -d \"\\ \")",
+        "e2fsck -y -f /dev/xvdo1 ; resize2fs -M /dev/xvdo1",
       ]
     else
       commands=[
-        "dd if=/dev/xvdm of=/dev/xvdo",
+        "e2fsck -f /dev/xvdm ; resize2fs -M /dev/xvdm",
+        "dd if=/dev/xvdm of=/dev/xvdo1",
+        "e2fsck -f /dev/xvdo1 ; resize2fs -M /dev/xvdo1",
         "partprobe /dev/xvdo",
         "udevadm settle",
       ]
