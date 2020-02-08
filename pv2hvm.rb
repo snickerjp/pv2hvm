@@ -50,10 +50,10 @@ ERROR: Create volume from snapshot failed. This could be caused by either of fol
 EOS
     end
     sleep 1 while @src_vol.status != :available
-    @src_attachment = @src_vol.attach_to(@ec2.instances[@instanceId], "/dev/sdm")
+    @src_attachment = @src_vol.attach_to(@ec2.instances[@instanceId], "/dev/xvdm")
     sleep 1 while @src_attachment.status != :attached
-    sleep 1 while !File.blockdev?("/dev/sdm")
-    puts " #{@src_vol.id} created and attached to /dev/sdm"
+    sleep 1 while !File.blockdev?("/dev/xvdm")
+    puts " #{@src_vol.id} created and attached to /dev/xvdm"
 
     puts "creating target volume with size : "+dst_vol_size.to_s
     begin
@@ -66,10 +66,10 @@ ERROR: Create volume failed. This could be caused by either of followings.
 EOS
     end
     sleep 1 while @dst_vol.status != :available
-    @dst_attachment = @dst_vol.attach_to(@ec2.instances[@instanceId], "/dev/sdo")
+    @dst_attachment = @dst_vol.attach_to(@ec2.instances[@instanceId], "/dev/xvdo")
     sleep 1 while @dst_attachment.status != :attached
-    sleep 1 while !File.blockdev?("/dev/sdo")
-    puts " #{@dst_vol.id} created and attached to /dev/sdo"
+    sleep 1 while !File.blockdev?("/dev/xvdo")
+    puts " #{@dst_vol.id} created and attached to /dev/xvdo"
     puts ""
 
   end
@@ -155,7 +155,7 @@ EOS
       @region=@az.sub(/.$/,'')
       AWS.config(:region => @region)
       @ec2 = AWS::EC2.new()
-      vols=@ec2.instances[@instanceId].attachments.select{|dev| dev.match(/sd[mo]/)}.map{|d,a| a.volume}
+      vols=@ec2.instances[@instanceId].attachments.select{|dev| dev.match(/xvd[mo]/)}.map{|d,a| a.volume}
       self.delete_volumes(vols)
     end
 
